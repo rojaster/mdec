@@ -6,9 +6,8 @@ import angr
 
 class AngrService(Service):
     """
-    angr decompiler as a service
+    angr as a service
     """
-
     def decompile(self, path: str) -> str:
         """
         Decompile all the functions in the binary located at `path`.

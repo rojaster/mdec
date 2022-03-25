@@ -7,9 +7,8 @@ from mdecbase import Service
 
 class GhidraService(Service):
     """
-    Ghidra decompiler as a service
+    Ghidra as a service
     """
-
     def decompile(self, path: str) -> str:
         """
         Decompile all the functions in the binary located at `path`.

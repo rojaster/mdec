@@ -8,8 +8,13 @@ core_set_license(license)
 
 class BinjaService(Service):
     """
-    Binary Ninja decompiler as a service
+    Binary Ninja as a service
     """
+    def lifting(self, path: str) -> str:
+        """
+        Lifting all the function in the binary to IR located at `path`.
+        """
+        return ''
 
     def decompile(self, path: str) -> str:
         """

@@ -6,23 +6,37 @@ from aiohttp import web
 import aiohttp
 
 
+
+
+# TODO(alekum): This part should be splitted as Service must provide what is required
+# to handle requests/responses.
+# 1. Identify Models
+# 2. Identify Controllers
+# 3. Idnetify Services
 class Service:
     """
-    Decompiler as a service
+    Decompiler/Lifter as a service
     """
 
     def __init__(self):
         self.app = web.Application()
+        self.app.add_routes([web.post('/lifting', self.post_lifting)])
         self.app.add_routes([web.post('/decompile', self.post_decompile)])
         self.app.add_routes([web.get('/version', self.get_version)])
 
     def decompile(self, path: str) -> str:
-        raise NotImplementedError()
+        # raise NotImplementedError("Required to be implemented in subclass")
+        return f"Required to be implemented in subclass {self.__class__.__name__}"
 
     def version(self) -> str:
-        raise NotImplementedError()
+        # raise NotImplementedError("Required to be implemented in subclass")
+        return f"Required to be implemented in subclass {self.__class__.__name__}"
 
-    async def post_decompile(self, request: aiohttp.web.BaseRequest) -> web.Response:
+    def lifting(self, path: str) -> str:
+        # raise NotImplementedError("Required to be implemented in subclass")
+        return f"Required to be implemented in subclass {self.__class__.__name__}"
+
+    async def handler(self, action_method, request: aiohttp.web.BaseRequest) -> web.Response:
         reader = await request.multipart()
         binary = await reader.next()
         if binary is None:
@@ -37,13 +51,18 @@ class Service:
                 f.flush()
 
             try:
-                decomp = self.decompile(f.name)
+                body = action_method(f.name)
                 resp_status = 200
             except:
-                decomp = traceback.format_exc()
+                body = traceback.format_exc()
                 resp_status = 500
+        return web.Response(text=body, status=resp_status)
 
-            return web.Response(text=decomp, status=resp_status)
+    async def post_lifting(self, request: aiohttp.web.BaseRequest) -> web.Response:
+        return await self.handler(self.lifting, request)
+
+    async def post_decompile(self, request: aiohttp.web.BaseRequest) -> web.Response:
+        return await self.handler(self.decompile, request)
 
     async def get_version(self, request: aiohttp.web.BaseRequest) -> web.Response:
         try:
