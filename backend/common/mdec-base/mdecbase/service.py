@@ -37,6 +37,11 @@ class Service:
         return f"Required to be implemented in subclass {self.__class__.__name__}"
 
     async def handler(self, action_method, request: aiohttp.web.BaseRequest) -> web.Response:
+        """ Processing handler, common interface 
+        Process user request and handle action accordingly.
+        Currently it should be refactored as Service should transfer responsibility to process
+        action to the controler and focus on web requests only.
+        """
         reader = await request.multipart()
         binary = await reader.next()
         if binary is None:
