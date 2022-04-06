@@ -63,3 +63,7 @@ You can also request decomp like:
 curl -F 'file=@test.o' http://127.0.0.1/hexrays/decompile
 ```
 
+TODO
+---
+
+- Add capability to dump disassembly for each lifted VEX block in Angr Service.
