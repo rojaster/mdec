@@ -98,26 +98,30 @@ body {
         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton1">
           <li>
             <a href="#" class="dropdown-item service-checkbox-link" for="angr-checkbox">
-              <input class="form-check-input service-checkbox" type="checkbox" data-value="angr" value="" id="angr-checkbox" checked>
-              angr
+              <input class="form-check-input service-checkbox" type="checkbox" data-value="angr-lifting" value="" id="angr-checkbox-lifting">
+              angr-lifting
+              <input class="form-check-input service-checkbox" type="checkbox" data-value="angr-decompile" value="" id="angr-checkbox-decompile" checked>
+              angr-decompile
             </a>
           </li>
           <li>
             <a href="#" class="dropdown-item service-checkbox-link" for="binja-checkbox">
-              <input class="form-check-input service-checkbox" type="checkbox" data-value="binja" value="" id="binja-checkbox" checked>
-              Binary Ninja
+              <input class="form-check-input service-checkbox" type="checkbox" data-value="binja-decompile" value="" id="binja-checkbox-decompile" checked>
+              BinNinja-decompile
             </a>
           </li>
           <li>
             <a href="#" class="dropdown-item service-checkbox-link" for="ghidra-checkbox">
-              <input class="form-check-input service-checkbox" type="checkbox" data-value="ghidra" value="" id="ghidra-checkbox" checked>
-              Ghidra
+              <input class="form-check-input service-checkbox" type="checkbox" data-value="ghidra-lifting" value="" id="ghidra-checkbox-lifting">
+              Ghidra-pcode
+              <input class="form-check-input service-checkbox" type="checkbox" data-value="ghidra-decompile" value="" id="ghidra-checkbox-decompile" checked>
+              Ghidra-decompile
             </a>
           </li>
           <li>
             <a href="#" class="dropdown-item service-checkbox-link" for="hexrays-checkbox">
-              <input class="form-check-input service-checkbox" type="checkbox" data-value="hexrays" value="" id="hexrays-checkbox" checked>
-              Hex-Rays
+              <input class="form-check-input service-checkbox" type="checkbox" data-value="hexrays-decompile" value="" id="hexrays-checkbox-decompile" checked>
+              Hex-Rays-decompile
             </a>
           </li>
           <li>
@@ -134,20 +138,20 @@ body {
           </li>
           <li>
             <a href="#" class="dropdown-item service-checkbox-link" for="reko-checkbox">
-              <input class="form-check-input service-checkbox" type="checkbox" data-value="reko" value="" id="reko-checkbox">
-              Reko
+              <input class="form-check-input service-checkbox" type="checkbox" data-value="reko-decompile" value="" id="reko-checkbox-decompile">
+              Reko-decompile
             </a>
           </li>
           <li>
             <a href="#" class="dropdown-item service-checkbox-link" for="retdec-checkbox">
-              <input class="form-check-input service-checkbox" type="checkbox" data-value="retdec" value="" id="retdec-checkbox">
-              RetDec
+              <input class="form-check-input service-checkbox" type="checkbox" data-value="retdec-decompile" value="" id="retdec-checkbox-decompile">
+              RetDec-decompile
             </a>
           </li>
           <li>
             <a href="#" class="dropdown-item service-checkbox-link" for="snowman-checkbox">
-              <input class="form-check-input service-checkbox" type="checkbox" data-value="snowman" value="" id="snowman-checkbox">
-              Snowman
+              <input class="form-check-input service-checkbox" type="checkbox" data-value="snowman-decompile" value="" id="snowman-checkbox-decompile">
+              Snowman-decompile
             </a>
           </li>
         </ul>
@@ -168,7 +172,6 @@ body {
     <div class="editor-col" id="retdec-col"><h3>RetDec</h3><div class="version" id="retdec-version"></div><div class="editor" id="retdec-editor"></div></div>
     <div class="editor-col" id="snowman-col"><h3>Snowman</h3><div class="version" id="snowman-version"></div><div class="editor" id="snowman-editor"></div></div>
   </div>
-
   </div>
 <!--
   <div class="mrow footer">
@@ -194,9 +197,10 @@ body {
       }
     }
 
-    function decomp_for_service(svc) {
+    function request_for_service(service) {
       var fd = new FormData();
       var file = $('#file')[0].files[0];
+      var [svc, req] = service.split('-');
       if (file == undefined) return;
       fd.append('file', file);
       $.ajax({
@@ -207,13 +211,15 @@ body {
           }
       })
       $.ajax({
-          url: '/'+svc+'/decompile',
+          url: '/'+svc+'/'+req,
           type: 'post',
           data: fd,
           contentType: false,
           processData: false,
           beforeSend: function(jqxhr, settings){
-              editors[svc].setValue("Loading...", -1);
+              let msg = "Loading "+svc+" for " +req+"...";
+              console.log(msg);
+              editors[svc].setValue(msg, -1);
           },
           success: function(response){
               editors[svc].setValue(response, -1);
@@ -226,26 +232,29 @@ body {
 
     function show_or_hide_col_for_checkbox(chk) {
       let svc = chk.attr('data-value');
-      let col = $('#' + svc + '-col');
+      let col = $('#' + svc.split('-')[0] + '-col');
       if (chk.is(':checked')) {
         col.show();
-        decomp_for_service(svc);
+        request_for_service(svc);
       } else {
         col.hide();
       }
     }
-
-    $('.service-checkbox-link').click(function(event) {
-      let chk = $('#' + $(this).attr('for'));
-      chk.prop('checked', !chk.is(':checked'));
-      show_or_hide_col_for_checkbox(chk);
-    });
 
     $('.service-checkbox').click(function(event) {
       event.stopPropagation();
     });
 
     $('.service-checkbox').change(function() {
+        let link = $(this).parent();
+        var self = $(this).attr('id');
+        link.children().each(function(){
+            if($(this).attr('id') === self) {
+                return;
+            } else {
+                $(this).prop('checked', false);
+            }
+        });
       show_or_hide_col_for_checkbox($(this));
     });
 
@@ -268,12 +277,10 @@ body {
 
       $("#file").change(function() {
         update_window_title();
-        for (let i = 0; i < services.length; i++) {
-          let svc = services[i];
-          if ($("#" + svc + "-checkbox")[0].checked) {
-            decomp_for_service(svc);
-          }
-        }
+        $(':checked').each(function(){
+            let svc = $(this).attr('data-value');
+            request_for_service(svc);
+        });
       });
     });
 </script>
