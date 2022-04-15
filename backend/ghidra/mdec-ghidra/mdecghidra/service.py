@@ -13,11 +13,23 @@ class GhidraService(Service):
         """
         Decompile all the functions in the binary located at `path`.
         """
+        return self.process(path, '/opt/ghidra/dump.py')
+
+    def lifting(self, path: str) -> str:
+        """
+        Lift to PCODE all functions in the binary located at `path`
+        """
+        return self.process(path, '/opt/ghidra/lift.py')
+
+    def process(self, path: str, script: str) -> str:
+        """
+        Process given binary
+        """
         original_cwd = os.getcwd()
         code = ''
         try:
             os.chdir(os.path.dirname(path))
-            subprocess.run(['/opt/ghidra/support/analyzeHeadless', '.', 'temp_project', '-import', os.path.basename(path), '-postScript', '/opt/ghidra/dump.py'])
+            subprocess.run(['/opt/ghidra/support/analyzeHeadless', '.', 'temp_project', '-import', os.path.basename(path), '-postScript', script])
             code = open('out.c').read()
         finally:
             os.chdir(original_cwd)

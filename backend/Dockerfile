@@ -64,6 +64,7 @@ RUN echo "${GHIDRA_SHA256}  $(basename ${GHIDRA_URL})" | sha256sum -c - \
  && mv /opt/ghidra/* /tmp/ghidra \
  && mv /tmp/ghidra/* /opt/ghidra
 COPY ghidra/dump.py /opt/ghidra/dump.py
+COPY ghidra/lift.py /opt/ghidra/lift.py
 COPY ghidra/version.py /opt/ghidra/version.py
 
 COPY common/mdec-base /mdec-base
