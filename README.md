@@ -1,7 +1,8 @@
 mdec
 ====
 
-Explore multiple decompilers and compare their output with minimal effort. Upload binary, get decompilation.
+Explore multiple decompilers(including lifting capabilities) and compare their output with minimal effort. 
+Upload binary, get either decompiled or lifted code.
 
 ![](screenshot.png)
 
@@ -23,7 +24,7 @@ Supported Decompilers
 
 Components
 ----------
-* Each decompiler is a service that runs in its own container
+* Each decompiler/lifter is a service that runs in its own container
 * A frontend web service proxies requests to backend service
 
 Install
@@ -63,7 +64,17 @@ You can also request decomp like:
 curl -F 'file=@test.o' http://127.0.0.1/hexrays/decompile
 ```
 
+You can also request lifted code like(except BinNinja and HexRays): 
+```
+curl -F 'file=@test.o' http://127.0.0.1/angr/lifting
+```
+
+
 TODO
 ---
 
 - Add capability to dump disassembly for each lifted VEX block in Angr Service.
+- Add capability to print Regs, Intrinsics for Snowman
+- Refine frontend part to disable services that are not run( ServiceDiscovery? )
+- Add capability to lift code for BinNinja and HexRays
+- Add mode tools that support lifting to IR(extend capabilities to compare different representation among tools)
