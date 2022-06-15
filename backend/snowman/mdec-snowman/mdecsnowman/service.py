@@ -9,11 +9,24 @@ class SnowmanService(Service):
     Snowman decompiler as a service
     """
 
+    def lifting(self, path: str) -> str:
+        """
+        Lifting all functions to IR level
+        """
+        return self.process(path, 'ir')
+
     def decompile(self, path: str) -> str:
         """
         Decompile all the functions in the binary located at `path`.
         """
-        return subprocess.check_output(['/opt/snowman/bin/nocode', path]).decode('utf-8')
+        return self.process(path, 'cxx')
+
+    def process(self, path: str, suffix: str) -> str:
+        result_file = os.path.basename(path) + '.' + suffix
+        subprocess.run(['/opt/snowman/bin/nocode',
+                        f'--print-{suffix}={result_file}',
+                        path], check=True)
+        return open(result_file).read()
 
     def version(self) -> str:
         # There is no --version, but there is version information in --help (commit hash only?)

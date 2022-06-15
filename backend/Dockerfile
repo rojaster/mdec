@@ -216,7 +216,7 @@ RUN apt-get update \
  && apt-get install -qy  build-essential cmake libboost-dev qt5-default git
 
 RUN cd /tmp \
- && git clone --depth=1 https://github.com/yegord/snowman.git \
+ && git clone --depth=1 https://github.com/rojaster/snowman.git -b feature/dumper \
  && mkdir -p snowman/build \
  && cd snowman/build \
  && cmake -DCMAKE_INSTALL_PREFIX=/opt/snowman ../src \
